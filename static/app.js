@@ -3,6 +3,17 @@
 
 const API = "/api";
 
+/**
+ * Track events with Google Analytics (GA4).
+ * @param {string} eventName - GA4 event name.
+ * @param {Object} [params] - Optional event parameters.
+ */
+function trackEvent(eventName, params = {}) {
+    if (typeof gtag === "function") {
+        gtag("event", eventName, params);
+    }
+}
+
 // ── Navigation ─────────────────────────────────────────────
 
 document.querySelectorAll(".nav-btn").forEach((btn) => {
@@ -17,6 +28,8 @@ document.querySelectorAll(".nav-btn").forEach((btn) => {
         document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
         const sectionId = `section-${btn.dataset.section}`;
         document.getElementById(sectionId).classList.add("active");
+
+        trackEvent("navigate_section", { section: btn.dataset.section });
     });
 });
 
@@ -35,6 +48,8 @@ chatForm.addEventListener("submit", async (e) => {
     chatInput.value = "";
     chatInput.disabled = true;
     document.getElementById("send-btn").disabled = true;
+
+    trackEvent("chat_message_sent", { message_length: message.length });
 
     const thinkingEl = showThinking();
 
@@ -73,8 +88,26 @@ function appendMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+/**
+ * Sanitise raw text to prevent XSS when inserting via innerHTML.
+ * @param {string} text - Untrusted text.
+ * @returns {string} HTML-escaped string.
+ */
+function sanitizeHTML(text) {
+    const el = document.createElement("div");
+    el.textContent = text;
+    return el.innerHTML;
+}
+
+/**
+ * Convert markdown-style bold and newlines to safe HTML.
+ * Sanitises first, then applies formatting patterns.
+ * @param {string} text - Raw text from API.
+ * @returns {string} Safe HTML string.
+ */
 function formatText(text) {
-    return text
+    const safe = sanitizeHTML(text);
+    return safe
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\n/g, "<br>");
 }
@@ -131,6 +164,8 @@ timelineForm.addEventListener("submit", async (e) => {
     const country = document.getElementById("timeline-country").value.trim();
     if (!country) return;
 
+    trackEvent("timeline_generated", { country: country });
+
     const container = document.getElementById("timeline-results");
     container.innerHTML = '<div class="loading" role="status">Generating timeline...</div>';
 
@@ -173,6 +208,10 @@ readinessForm.addEventListener("submit", async (e) => {
         know_election_date: document.getElementById("q-date").checked,
         understand_ballot: document.getElementById("q-ballot").checked,
     };
+
+    trackEvent("readiness_check", {
+        items_checked: Object.values(payload).filter(Boolean).length,
+    });
 
     try {
         const res = await fetch(`${API}/readiness`, {
@@ -247,7 +286,14 @@ document.getElementById("glossary-search").addEventListener("input", (e) => {
         (t) => t.term.toLowerCase().includes(q) || t.definition.toLowerCase().includes(q)
     );
     renderGlossary(filtered);
+    trackEvent("glossary_search", { query: q });
 });
+
+// ── Initialise ────────────────────────────────────────────
+
+loadProcess();
+loadGlossary();
+trackEvent("app_loaded");
 
 // ── Init ──────────────────────────────────────────────────
 

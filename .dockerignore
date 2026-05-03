@@ -9,3 +9,10 @@ venv/
 README.md
 *.md
 .pytest_cache/
+.ruff_cache/
+tests/
+pyproject.toml
+pytest.ini
+.idea/
+.vscode/
+.pytest_cache/

@@ -1,6 +1,8 @@
 fastapi
 uvicorn[standard]
 google-genai
+google-cloud-logging
 pydantic
 pytest
 httpx
+anyio

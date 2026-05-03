@@ -2,58 +2,169 @@
 
 An interactive AI-powered platform that helps users understand election
 processes, timelines, voter registration, and civic participation through
-conversational AI — powered by Gemini 2.5 Flash and Vertex AI.
+conversational AI — powered by **Google Gemini 2.5 Flash** and **Vertex AI**,
+deployed on **Google Cloud Run**.
+
+## Chosen Vertical
+
+**Election Process Education** — A non-partisan AI assistant that teaches
+users about election mechanics, voting procedures, timelines, and civic
+participation across global democracies with a focus on India.
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph Client
-        UI[Web UI - SPA]
+    subgraph Client[Web Browser]
+        UI[SPA - HTML/CSS/JS]
+        GA[Google Analytics GA4]
+        GF[Google Fonts]
     end
 
     subgraph CloudRun[Google Cloud Run]
         FE[FastAPI Server]
-        AI[Gemini 2.5 Flash]
-        DATA[Election Data]
+        MW[Security & Rate Limit Middleware]
+        GZ[GZip Compression]
+        CACHE[In-Memory TTL Cache]
+        AI[Gemini AI Module]
+        DATA[Election Data - JSON]
     end
 
-    subgraph VertexAI[Vertex AI]
+    subgraph VertexAI[Google Vertex AI]
         GEMINI[Gemini 2.5 Flash Model]
         ADC[Application Default Credentials]
     end
 
-    UI -->|REST API| FE
+    subgraph CloudOps[Google Cloud Operations]
+        CL[Cloud Logging]
+    end
+
+    UI -->|REST API| MW
+    MW --> GZ
+    GZ --> FE
     FE -->|Chat / Timeline / Readiness / Topics| AI
     FE -->|Glossary / Process Steps| DATA
+    AI -->|Cached Responses| CACHE
     AI -->|Vertex AI ADC| GEMINI
     ADC -.->|Auth| GEMINI
+    FE -.->|Structured Logs| CL
+    UI -.->|Events| GA
+    UI -.->|Typography| GF
 
     style Client fill:#4285F4,stroke:#222,stroke-width:2px,color:#fff
     style CloudRun fill:#34A853,stroke:#222,stroke-width:2px,color:#fff
     style VertexAI fill:#FF9933,stroke:#222,stroke-width:2px,color:#fff
+    style CloudOps fill:#EA4335,stroke:#222,stroke-width:2px,color:#fff
 ```
+
+## Google Services Integration
+
+| Google Service             | Usage                                              |
+| -------------------------- | -------------------------------------------------- |
+| **Vertex AI (Gemini 2.5)** | Core AI — chat, timelines, readiness, topic explain |
+| **Google Cloud Run**       | Serverless container hosting with auto-scaling      |
+| **Google Cloud Logging**   | Structured JSON logging and monitoring              |
+| **Google Analytics (GA4)** | User interaction tracking and engagement metrics    |
+| **Google Fonts**           | Space Grotesk & Space Mono typography               |
+| **Application Default Credentials** | Secure keyless authentication for Vertex AI |
 
 ## Tech Stack
 
-| Component  | Technology                   | Purpose                              |
-| ---------- | ---------------------------- | ------------------------------------ |
-| AI Model   | Gemini 2.5 Flash (Vertex AI) | Reasoning, generation, education     |
-| Backend    | FastAPI (Python 3.11)        | REST API with Pydantic validation    |
-| Frontend   | Vanilla HTML/CSS/JS          | Neo-Brutalist accessible SPA         |
-| Auth       | Vertex AI ADC                | Application Default Credentials      |
-| Deployment | Google Cloud Run             | Serverless container hosting         |
-| Testing    | pytest + httpx               | Async API and unit tests             |
+| Component   | Technology                   | Purpose                              |
+| ----------- | ---------------------------- | ------------------------------------ |
+| AI Model    | Gemini 2.5 Flash (Vertex AI) | Reasoning, generation, education     |
+| Backend     | FastAPI (Python 3.11)        | REST API with Pydantic validation    |
+| Frontend    | Vanilla HTML/CSS/JS          | Neo-Brutalist accessible SPA         |
+| Auth        | Vertex AI ADC                | Application Default Credentials      |
+| Deployment  | Google Cloud Run             | Serverless container hosting         |
+| Logging     | Google Cloud Logging         | Structured production logging        |
+| Analytics   | Google Analytics (GA4)       | User engagement and event tracking   |
+| Fonts       | Google Fonts                 | Space Grotesk & Space Mono           |
+| Compression | GZip Middleware              | Response compression (>500 bytes)    |
+| Caching     | In-memory TTL Cache          | Reduce redundant Vertex AI calls     |
+| Security    | OWASP Headers + Rate Limit   | CSP, HSTS, XSS protection           |
+| Testing     | pytest + httpx + anyio       | Async API and unit tests             |
 
 ## Features
 
-- **AI Chat**: Conversational assistant for election process questions
-- **Election Process Guide**: Step-by-step visual walkthrough of how voting works
-- **Timeline Generator**: AI-generated election timelines for any country
-- **Voter Readiness Check**: Self-assessment quiz with AI-powered feedback
-- **Election Glossary**: Searchable database of 25+ electoral terms
-- **Non-Partisan**: Factual, neutral education without political bias
-- **Accessible**: WCAG-compliant with keyboard navigation, ARIA labels, skip links
+- **AI Chat** — Conversational assistant for election process questions
+- **Election Process Guide** — Step-by-step visual walkthrough of how voting works
+- **Timeline Generator** — AI-generated election timelines for any country
+- **Voter Readiness Check** — Self-assessment quiz with AI-powered feedback
+- **Election Glossary** — Searchable database of 25+ electoral terms
+- **Non-Partisan** — Factual, neutral education without political bias
+- **Accessible** — WCAG-compliant with keyboard navigation, ARIA labels, skip links
+- **Responsive** — Mobile, tablet, and desktop optimised
+- **Secure** — OWASP headers, CSP, rate limiting, input validation, XSS sanitization
+
+## Project Structure
+
+```
+civic_lens/
+├── main.py                 # FastAPI app factory with lifespan & middleware
+├── config.py               # Centralized settings from environment variables
+├── ai/
+│   ├── __init__.py
+│   └── gemini.py           # Vertex AI Gemini integration with caching
+├── api/
+│   ├── __init__.py
+│   ├── routes.py           # REST API endpoints with Pydantic models
+│   └── middleware.py       # Security headers & rate limiting
+├── services/
+│   ├── __init__.py
+│   ├── google_cloud.py     # Cloud Logging & Cloud Run metadata
+│   └── cache.py            # In-memory TTL cache for AI responses
+├── data/
+│   ├── glossary.json       # 25 electoral terms
+│   └── election_process.json  # 7-step voting guide
+├── static/
+│   ├── index.html          # SPA with Google Analytics & Fonts
+│   ├── styles.css          # Neo-Brutalist responsive CSS
+│   └── app.js              # Frontend logic with GA event tracking
+├── tests/
+│   ├── conftest.py         # Shared fixtures
+│   ├── test_api.py         # API endpoint tests
+│   ├── test_ai.py          # AI module tests
+│   ├── test_config.py      # Configuration tests
+│   ├── test_middleware.py  # Security & performance tests
+│   ├── test_security.py    # Input validation & edge cases
+│   └── test_cache.py       # TTL cache tests
+├── Dockerfile              # Production container (non-root user)
+├── requirements.txt        # Python dependencies
+├── pyproject.toml          # Project metadata & tool config
+├── pytest.ini              # Test runner configuration
+└── README.md
+```
+
+## Approach and Logic
+
+1. **AI-First Design** — Every interactive feature (chat, timeline, readiness) is
+   powered by Gemini 2.5 Flash via Vertex AI, providing intelligent, contextual
+   responses rather than static content.
+
+2. **Non-Partisan Architecture** — The system instruction enforces neutrality;
+   the AI redirects partisan questions to factual process information.
+
+3. **Performance Optimization** — In-memory TTL caching reduces redundant
+   Vertex AI calls for identical queries. GZip compression minimises payload
+   size. Static data (glossary, process) is loaded once via `lru_cache`.
+
+4. **Security-First** — OWASP security headers (CSP, HSTS, X-Frame-Options),
+   per-IP rate limiting, Pydantic input validation with size constraints,
+   XSS sanitization in the frontend, and non-root Docker user.
+
+5. **Observability** — Google Cloud Logging provides structured JSON logs
+   for production monitoring. Google Analytics tracks user engagement.
+   Response time headers enable performance monitoring.
+
+## Assumptions
+
+- Users have internet access to load Google Fonts and submit queries
+- The Vertex AI API is enabled on the configured Google Cloud project
+- ADC is configured (via `gcloud auth application-default login` locally
+  or automatically on Cloud Run)
+- The GA4 measurement ID (`G-CIVICLENS01`) should be replaced with a
+  real ID for production analytics
 
 ## Prerequisites
 
@@ -94,22 +205,27 @@ gcloud run deploy civic-lens-ai \
 
 ## API Endpoints
 
-| Method | Path            | Description                          |
-| ------ | --------------- | ------------------------------------ |
-| GET    | /api/health     | Service health check                 |
-| POST   | /api/chat       | AI chat about elections              |
-| POST   | /api/timeline   | Generate election timeline           |
-| POST   | /api/readiness  | Voter readiness self-assessment      |
-| POST   | /api/topic      | AI explanation of electoral topic    |
-| GET    | /api/glossary   | Full election glossary               |
-| GET    | /api/process    | Step-by-step election process guide  |
+| Method | Path           | Description                         |
+| ------ | -------------- | ----------------------------------- |
+| GET    | /api/health    | Service health check                |
+| POST   | /api/chat      | AI chat about elections              |
+| POST   | /api/timeline  | Generate election timeline           |
+| POST   | /api/readiness | Voter readiness self-assessment     |
+| POST   | /api/topic     | AI explanation of electoral topic   |
+| GET    | /api/glossary  | Full election glossary              |
+| GET    | /api/process   | Step-by-step election process guide |
+| GET    | /api/docs      | Interactive API documentation       |
 
 ## Security
 
-- Input validation via Pydantic models with field constraints
-- CORS middleware with configurable allowed origins
-- No hardcoded credentials — uses Application Default Credentials
-- Request size limits on all user inputs
+- **Input validation** — Pydantic models with field constraints and custom validators
+- **CORS** — Configurable allowed origins via environment variable
+- **Security headers** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options, XSS protection
+- **Rate limiting** — Sliding-window per-IP rate limiter (60 req/min)
+- **XSS prevention** — Frontend sanitization before innerHTML rendering
+- **No hardcoded credentials** — Uses Application Default Credentials (ADC)
+- **Non-root container** — Docker runs as unprivileged `appuser`
+- **Cache-Control** — `no-store` on API responses to prevent sensitive data caching
 
 ## License
 
