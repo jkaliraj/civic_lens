@@ -795,3 +795,42 @@ footer::after {
     footer { padding: 6px 12px; font-size: 0.68rem; }
     footer::after { margin: 4px -12px -6px; }
 }
+
+/* ── Keyboard hint ────────────────────────────────────────── */
+.keyboard-hint {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── Print styles ─────────────────────────────────────────── */
+@media print {
+    nav, .chat-input-area, footer, .glossary-search,
+    .readiness-form, button, .nav-btn, .skip-link {
+        display: none !important;
+    }
+    body { background: white; color: black; }
+    main { padding: 0; }
+    .section { display: block !important; border: none; box-shadow: none; }
+    .message { box-shadow: none; border: 1px solid #ccc; }
+    .step-card, .glossary-card, .timeline-item {
+        box-shadow: none; border: 1px solid #999; page-break-inside: avoid;
+    }
+}
+
+/* ── Focus visible ────────────────────────────────────────── */
+:focus-visible {
+    outline: 3px solid var(--google-blue);
+    outline-offset: 2px;
+}

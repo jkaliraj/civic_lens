@@ -37,6 +37,7 @@ graph TB
 
     subgraph CloudOps[Google Cloud Operations]
         CL[Cloud Logging]
+        ER[Cloud Error Reporting]
     end
 
     UI -->|REST API| MW
@@ -48,6 +49,7 @@ graph TB
     AI -->|Vertex AI ADC| GEMINI
     ADC -.->|Auth| GEMINI
     FE -.->|Structured Logs| CL
+    FE -.->|Error Reports| ER
     UI -.->|Events| GA
     UI -.->|Typography| GF
 
@@ -66,6 +68,8 @@ graph TB
 | **Google Cloud Logging**   | Structured JSON logging and monitoring              |
 | **Google Analytics (GA4)** | User interaction tracking and engagement metrics    |
 | **Google Fonts**           | Space Grotesk & Space Mono typography               |
+| **Cloud Error Reporting**   | Automatic error capture and monitoring            |
+| **Google Material Symbols** | Icon system for UI elements                       |
 | **Application Default Credentials** | Secure keyless authentication for Vertex AI |
 
 ## Tech Stack
@@ -83,6 +87,8 @@ graph TB
 | Compression | GZip Middleware              | Response compression (>500 bytes)    |
 | Caching     | In-memory TTL Cache          | Reduce redundant Vertex AI calls     |
 | Security    | OWASP Headers + Rate Limit   | CSP, HSTS, XSS protection           |
+| Errors      | Cloud Error Reporting        | Automatic exception capture          |
+| Tracing     | Request ID Middleware        | UUID4 request tracing across logs    |
 | Testing     | pytest + httpx + anyio       | Async API and unit tests             |
 
 ## Features
@@ -96,6 +102,9 @@ graph TB
 - **Accessible** — WCAG-compliant with keyboard navigation, ARIA labels, skip links
 - **Responsive** — Mobile, tablet, and desktop optimised
 - **Secure** — OWASP headers, CSP, rate limiting, input validation, XSS sanitization
+- **Observable** — Request ID tracing, Cloud Error Reporting, structured logging
+- **Keyboard Shortcuts** — Number keys 1-5 switch tabs, / focuses chat
+- **Print-Friendly** — Clean print stylesheet for offline reference
 
 ## Project Structure
 
@@ -109,10 +118,11 @@ civic_lens/
 ├── api/
 │   ├── __init__.py
 │   ├── routes.py           # REST API endpoints with Pydantic models
-│   └── middleware.py       # Security headers & rate limiting
+│   └── middleware.py       # Security headers, rate limit, request ID, error handler
 ├── services/
 │   ├── __init__.py
 │   ├── google_cloud.py     # Cloud Logging & Cloud Run metadata
+│   ├── error_reporting.py  # Google Cloud Error Reporting integration
 │   └── cache.py            # In-memory TTL cache for AI responses
 ├── data/
 │   ├── glossary.json       # 25 electoral terms
@@ -128,7 +138,8 @@ civic_lens/
 │   ├── test_config.py      # Configuration tests
 │   ├── test_middleware.py  # Security & performance tests
 │   ├── test_security.py    # Input validation & edge cases
-│   └── test_cache.py       # TTL cache tests
+│   ├── test_cache.py       # TTL cache tests
+│   └── test_error_reporting.py  # Error reporting tests
 ├── Dockerfile              # Production container (non-root user)
 ├── requirements.txt        # Python dependencies
 ├── pyproject.toml          # Project metadata & tool config
@@ -153,9 +164,10 @@ civic_lens/
    per-IP rate limiting, Pydantic input validation with size constraints,
    XSS sanitization in the frontend, and non-root Docker user.
 
-5. **Observability** — Google Cloud Logging provides structured JSON logs
-   for production monitoring. Google Analytics tracks user engagement.
-   Response time headers enable performance monitoring.
+5. **Observability** — Google Cloud Logging provides structured JSON logs.
+   Cloud Error Reporting captures unhandled exceptions. Request ID tracing
+   enables correlation across distributed logs. Google Analytics tracks
+   user engagement. Response time headers enable performance monitoring.
 
 ## Assumptions
 
@@ -226,6 +238,9 @@ gcloud run deploy civic-lens-ai \
 - **No hardcoded credentials** — Uses Application Default Credentials (ADC)
 - **Non-root container** — Docker runs as unprivileged `appuser`
 - **Cache-Control** — `no-store` on API responses to prevent sensitive data caching
+- **Request ID tracing** — UUID4 per-request for distributed log correlation
+- **Global error handler** — Safe JSON errors, no stack trace leakage
+- **Cloud Error Reporting** — Automatic exception capture in production
 
 ## License
 

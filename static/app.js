@@ -280,13 +280,92 @@ function renderGlossary(terms) {
         .join("");
 }
 
-document.getElementById("glossary-search").addEventListener("input", (e) => {
+document.getElementById("glossary-search").addEventListener("input", debounce((e) => {
     const q = e.target.value.toLowerCase();
     const filtered = glossaryData.filter(
         (t) => t.term.toLowerCase().includes(q) || t.definition.toLowerCase().includes(q)
     );
     renderGlossary(filtered);
     trackEvent("glossary_search", { query: q });
+}, 250));
+
+// ── Accessibility: live announcer ─────────────────────────
+
+/**
+ * Announce a message to screen readers via the live region.
+ * @param {string} message - Text to announce.
+ */
+function announce(message) {
+    const el = document.getElementById("announcer");
+    if (el) {
+        el.textContent = "";
+        // Force re-announcement by clearing first
+        requestAnimationFrame(() => { el.textContent = message; });
+    }
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────
+
+const navButtons = document.querySelectorAll(".nav-btn");
+document.addEventListener("keydown", (e) => {
+    // Don't capture if user is typing in an input field
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+        // Allow "/" to blur and focus chat when in other inputs
+        if (e.key === "Escape") {
+            e.target.blur();
+        }
+        return;
+    }
+
+    // Number keys 1-5 switch tabs
+    if (e.key >= "1" && e.key <= "5") {
+        const idx = parseInt(e.key) - 1;
+        if (navButtons[idx]) {
+            navButtons[idx].click();
+            announce(`Switched to ${navButtons[idx].textContent} tab`);
+        }
+    }
+
+    // "/" focuses chat input
+    if (e.key === "/") {
+        e.preventDefault();
+        // Switch to chat tab if not active
+        navButtons[0].click();
+        chatInput.focus();
+        announce("Chat input focused");
+    }
+});
+
+// ── Debounce utility ──────────────────────────────────────
+
+/**
+ * Debounce a function call to avoid excessive invocations.
+ * @param {Function} fn - The function to debounce.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Function} Debounced function.
+ */
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+// ── Error tracking ────────────────────────────────────────
+
+window.addEventListener("error", (e) => {
+    trackEvent("javascript_error", {
+        message: e.message,
+        source: e.filename,
+        line: e.lineno,
+    });
+});
+
+window.addEventListener("unhandledrejection", (e) => {
+    trackEvent("unhandled_promise_rejection", {
+        reason: String(e.reason),
+    });
 });
 
 // ── Initialise ────────────────────────────────────────────
@@ -294,6 +373,7 @@ document.getElementById("glossary-search").addEventListener("input", (e) => {
 loadProcess();
 loadGlossary();
 trackEvent("app_loaded");
+announce("CivicLens AI loaded. Use number keys 1 through 5 to switch tabs.");
 
 // ── Init ──────────────────────────────────────────────────
 

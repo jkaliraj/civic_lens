@@ -22,6 +22,56 @@ async def test_health(client):
 
 
 @pytest.mark.anyio
+async def test_health_includes_cache_stats(client):
+    """Health endpoint should include cache statistics."""
+    response = await client.get("/api/health")
+    data = response.json()
+    assert "cache_stats" in data
+    assert "timeline_cache" in data["cache_stats"]
+    assert "topic_cache" in data["cache_stats"]
+
+
+@pytest.mark.anyio
+async def test_health_includes_environment(client):
+    """Health endpoint should include environment info."""
+    response = await client.get("/api/health")
+    data = response.json()
+    assert "environment" in data
+
+
+@pytest.mark.anyio
+async def test_root_contains_schema_org(client):
+    """Root HTML should include schema.org structured data."""
+    response = await client.get("/")
+    assert "application/ld+json" in response.text
+    assert "schema.org" in response.text
+    assert "WebApplication" in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_material_icons(client):
+    """Root HTML should include Google Material Symbols."""
+    response = await client.get("/")
+    assert "Material+Symbols" in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_open_graph(client):
+    """Root HTML should include Open Graph meta tags."""
+    response = await client.get("/")
+    assert 'og:title' in response.text
+    assert 'og:description' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_aria_live(client):
+    """Root HTML should include an ARIA live announcer region."""
+    response = await client.get("/")
+    assert 'aria-live="assertive"' in response.text
+    assert 'id="announcer"' in response.text
+
+
+@pytest.mark.anyio
 async def test_root_serves_html(client):
     """Root path should serve the SPA HTML page."""
     response = await client.get("/")

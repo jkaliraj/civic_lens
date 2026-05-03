@@ -22,6 +22,8 @@ from ai.gemini import (
     generate_timeline,
     voter_readiness_check,
 )
+from services.cache import timeline_cache, topic_cache
+from services.google_cloud import get_cloud_run_metadata
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -141,6 +143,8 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
+    environment: str = ""
+    cache_stats: dict[str, dict[str, int]] = {}
 
 
 # ── Cached data loaders ──────────────────────────────────────
@@ -188,12 +192,19 @@ async def health() -> HealthResponse:
     """Service health check for Cloud Run and monitoring.
 
     Returns:
-        HealthResponse with service status, name, and version.
+        HealthResponse with service status, name, version,
+        environment metadata, and cache statistics.
     """
+    metadata = get_cloud_run_metadata()
     return HealthResponse(
         status="healthy",
         service="civic-lens-ai",
         version="1.0.0",
+        environment=metadata.get("service", "local"),
+        cache_stats={
+            "timeline_cache": timeline_cache.stats,
+            "topic_cache": topic_cache.stats,
+        },
     )
 
 

@@ -15,7 +15,12 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from api.middleware import RateLimitMiddleware, SecurityHeadersMiddleware
+from api.middleware import (
+    ErrorHandlerMiddleware,
+    RateLimitMiddleware,
+    RequestIdMiddleware,
+    SecurityHeadersMiddleware,
+)
 from api.routes import router
 from config import get_settings
 from services.google_cloud import setup_cloud_logging, get_cloud_run_metadata
@@ -77,7 +82,7 @@ def create_app() -> FastAPI:
         allow_origins=origins,
         allow_credentials=True,
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-Request-ID"],
     )
     application.add_middleware(GZipMiddleware, minimum_size=500)
     application.add_middleware(SecurityHeadersMiddleware)
@@ -86,6 +91,8 @@ def create_app() -> FastAPI:
         max_requests=settings.rate_limit_per_minute,
         window_seconds=60,
     )
+    application.add_middleware(RequestIdMiddleware)
+    application.add_middleware(ErrorHandlerMiddleware)
 
     # API routes
     application.include_router(router, prefix="/api")

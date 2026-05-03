@@ -3,14 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CivicLens AI — Interactive election process education assistant powered by Google Gemini 2.5 Flash & Vertex AI">
+    <meta name="description" content="CivicLens AI — Interactive election process education assistant powered by Google Gemini 2.5 Flash & Vertex AI. Learn about voting, elections, and civic participation.">
     <meta name="theme-color" content="#4285F4">
+    <meta name="author" content="CivicLens AI">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="CivicLens AI — Election Process Education">
+    <meta property="og:description" content="AI-powered election education assistant. Learn about voting, timelines, and civic participation.">
+    <meta property="og:type" content="website">
     <title>CivicLens AI — Election Process Education</title>
+
+    <!-- Schema.org structured data for Google Search -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "CivicLens AI",
+        "description": "AI-powered election process education assistant",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Organization", "name": "CivicLens" },
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://civic-lens-ai.run.app/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
 
     <!-- Google Fonts — Space Grotesk & Space Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Google Material Symbols (icons) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
 
     <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CIVICLENS01"></script>
@@ -123,9 +150,12 @@
     </main>
 
     <footer role="contentinfo">
-        <p>CivicLens AI &mdash; Powered by Google Gemini 2.5 Flash &amp; Vertex AI</p>
+        <p>CivicLens AI &mdash; Powered by Google Gemini 2.5 Flash &amp; Vertex AI &amp; Google Cloud Run</p>
         <p class="disclaimer">This tool provides educational information only. Always verify election details with your local election authority.</p>
+        <p class="keyboard-hint" aria-hidden="true">Keyboard: 1-5 switch tabs &middot; / focus chat</p>
     </footer>
+
+    <div id="announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
     <script src="/static/app.js"></script>
 </body>

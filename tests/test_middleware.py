@@ -58,3 +58,36 @@ async def test_health_not_rate_limited(client):
     for _ in range(70):
         response = await client.get("/api/health")
         assert response.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_request_id_generated(client):
+    """Responses should include an X-Request-ID header."""
+    response = await client.get("/api/health")
+    assert "x-request-id" in response.headers
+    request_id = response.headers["x-request-id"]
+    assert len(request_id) > 0
+    # UUID4 format check: 8-4-4-4-12 hex chars
+    parts = request_id.split("-")
+    assert len(parts) == 5
+
+
+@pytest.mark.anyio
+async def test_request_id_passthrough(client):
+    """When X-Request-ID is provided, it should be echoed back."""
+    custom_id = "my-custom-request-id-12345"
+    response = await client.get(
+        "/api/health",
+        headers={"X-Request-ID": custom_id},
+    )
+    assert response.headers["x-request-id"] == custom_id
+
+
+@pytest.mark.anyio
+async def test_request_id_unique_per_request(client):
+    """Each request should get a unique request ID."""
+    ids = set()
+    for _ in range(5):
+        response = await client.get("/api/health")
+        ids.add(response.headers["x-request-id"])
+    assert len(ids) == 5

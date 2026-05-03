@@ -1,20 +1,74 @@
 """CivicLens AI — Security and performance middleware.
 
-Provides HTTP security headers (OWASP best practices) and
-sliding-window rate limiting per client IP address.
+Provides HTTP security headers (OWASP best practices), sliding-window
+rate limiting per client IP, request ID tracing, and global error handling.
 """
 
 from __future__ import annotations
 
 import logging
 import time
+import uuid
 from collections import defaultdict
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
+
+from services.error_reporting import report_error
 
 logger = logging.getLogger(__name__)
+
+
+class RequestIdMiddleware(BaseHTTPMiddleware):
+    """Attach a unique request ID to every request for traceability.
+
+    Uses the incoming X-Request-ID header if present (e.g. from a load
+    balancer), otherwise generates a UUID4. The ID is propagated in the
+    response headers and available in the request state for logging.
+    """
+
+    async def dispatch(self, request: Request, call_next) -> Response:
+        """Inject request ID into request state and response headers."""
+        request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
+        request.state.request_id = request_id
+
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
+
+
+class ErrorHandlerMiddleware(BaseHTTPMiddleware):
+    """Global error handler that catches unhandled exceptions.
+
+    Returns a structured JSON error response and reports the exception
+    to Google Cloud Error Reporting for production monitoring.
+    """
+
+    async def dispatch(self, request: Request, call_next) -> Response:
+        """Catch unhandled exceptions and return a safe JSON response."""
+        try:
+            return await call_next(request)
+        except Exception as exc:
+            request_id = getattr(request.state, "request_id", "unknown")
+            logger.exception(
+                "Unhandled error on %s %s [request_id=%s]",
+                request.method,
+                request.url.path,
+                request_id,
+            )
+            report_error(exc, context={
+                "method": request.method,
+                "path": str(request.url.path),
+                "request_id": request_id,
+            })
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "detail": "An internal error occurred. Please try again.",
+                    "request_id": request_id,
+                },
+            )
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

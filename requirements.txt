@@ -2,6 +2,7 @@ fastapi
 uvicorn[standard]
 google-genai
 google-cloud-logging
+google-cloud-error-reporting
 pydantic
 pytest
 httpx
