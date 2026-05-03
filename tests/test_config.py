@@ -113,3 +113,16 @@ class TestSettingsValidation:
         with patch.dict(os.environ, {"LOG_LEVEL": "debug"}, clear=True):
             s = Settings()
             assert s.log_level == "DEBUG"
+
+    def test_settings_frozen(self):
+        """Settings should be immutable after creation."""
+        with patch.dict(os.environ, {}, clear=True):
+            s = Settings()
+            with pytest.raises(AttributeError):
+                s.log_level = "WARNING"  # type: ignore[misc]
+
+    def test_high_port_defaults_to_8080(self):
+        """Port above 65535 should fall back to 8080."""
+        with patch.dict(os.environ, {"PORT": "70000"}, clear=True):
+            s = Settings()
+            assert s.port == 8080

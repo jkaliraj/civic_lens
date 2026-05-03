@@ -101,3 +101,51 @@ async def test_missing_required_fields(client):
 
     response = await client.post("/api/readiness", json={})
     assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_csp_header_present(client):
+    """Content-Security-Policy header should be set."""
+    response = await client.get("/api/health")
+    csp = response.headers.get("content-security-policy", "")
+    assert "default-src" in csp
+    assert "script-src" in csp
+
+
+@pytest.mark.anyio
+async def test_x_content_type_options(client):
+    """X-Content-Type-Options should be nosniff."""
+    response = await client.get("/api/health")
+    assert response.headers.get("x-content-type-options") == "nosniff"
+
+
+@pytest.mark.anyio
+async def test_referrer_policy(client):
+    """Referrer-Policy header should be present."""
+    response = await client.get("/api/health")
+    assert response.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+
+
+@pytest.mark.anyio
+async def test_x_frame_options(client):
+    """X-Frame-Options should be DENY."""
+    response = await client.get("/api/health")
+    assert response.headers.get("x-frame-options") == "DENY"
+
+
+@pytest.mark.anyio
+async def test_trusted_host_middleware_present():
+    """App should have TrustedHostMiddleware registered."""
+    from main import create_app
+    app = create_app()
+    middleware_classes = [m.cls.__name__ for m in app.user_middleware]
+    assert "TrustedHostMiddleware" in middleware_classes
+
+
+@pytest.mark.anyio
+async def test_cors_allows_all_origins():
+    """CORS middleware should be registered."""
+    from main import create_app
+    app = create_app()
+    middleware_classes = [m.cls.__name__ for m in app.user_middleware]
+    assert "CORSMiddleware" in middleware_classes

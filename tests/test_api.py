@@ -391,3 +391,95 @@ async def test_root_contains_keyboard_hints(client):
     """Root HTML should include keyboard shortcut hints."""
     response = await client.get("/")
     assert "keyboard-hint" in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_tablist_roles(client):
+    """Navigation should use proper ARIA tab roles."""
+    response = await client.get("/")
+    assert 'role="tablist"' in response.text
+    assert 'role="tab"' in response.text
+    assert 'role="tabpanel"' in response.text
+    assert 'aria-selected="true"' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_aria_describedby(client):
+    """Form inputs should have aria-describedby hints."""
+    response = await client.get("/")
+    assert 'aria-describedby="chat-hint"' in response.text
+    assert 'id="chat-hint"' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_html_lang_attribute(client):
+    """Root HTML element should have lang attribute."""
+    response = await client.get("/")
+    assert '<html lang="en">' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_viewport_meta(client):
+    """HTML should contain viewport meta tag for responsive design."""
+    response = await client.get("/")
+    assert 'name="viewport"' in response.text
+    assert "width=device-width" in response.text
+
+
+@pytest.mark.anyio
+async def test_root_has_main_landmark(client):
+    """HTML should have a main landmark with proper id."""
+    response = await client.get("/")
+    assert 'id="main-content"' in response.text
+    assert 'role="main"' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_has_header_footer_landmarks(client):
+    """HTML should have banner and contentinfo landmarks."""
+    response = await client.get("/")
+    assert 'role="banner"' in response.text
+    assert 'role="contentinfo"' in response.text
+
+
+@pytest.mark.anyio
+async def test_css_contains_reduced_motion(client):
+    """CSS should include prefers-reduced-motion media query."""
+    response = await client.get("/static/styles.css")
+    assert "prefers-reduced-motion" in response.text
+
+
+@pytest.mark.anyio
+async def test_css_contains_high_contrast(client):
+    """CSS should include prefers-contrast high media query."""
+    response = await client.get("/static/styles.css")
+    assert "prefers-contrast: high" in response.text
+
+
+@pytest.mark.anyio
+async def test_css_contains_forced_colors(client):
+    """CSS should include forced-colors media query."""
+    response = await client.get("/static/styles.css")
+    assert "forced-colors: active" in response.text
+
+
+@pytest.mark.anyio
+async def test_css_contains_print_styles(client):
+    """CSS should include print media query."""
+    response = await client.get("/static/styles.css")
+    assert "@media print" in response.text
+
+
+@pytest.mark.anyio
+async def test_js_contains_sanitize_html(client):
+    """Frontend JS should include XSS sanitization function."""
+    response = await client.get("/static/app.js")
+    assert "sanitizeHTML" in response.text
+
+
+@pytest.mark.anyio
+async def test_js_contains_error_tracking(client):
+    """Frontend JS should track JavaScript errors."""
+    response = await client.get("/static/app.js")
+    assert "javascript_error" in response.text
+    assert "unhandledrejection" in response.text

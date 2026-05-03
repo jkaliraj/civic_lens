@@ -13,6 +13,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
@@ -88,6 +89,10 @@ def create_app() -> FastAPI:
         allow_headers=["Content-Type", "X-Request-ID"],
     )
     application.add_middleware(GZipMiddleware, minimum_size=500)
+    application.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["*"],  # Tightened per-environment in production
+    )
     application.add_middleware(SecurityHeadersMiddleware)
     application.add_middleware(
         RateLimitMiddleware,

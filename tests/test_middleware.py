@@ -91,3 +91,50 @@ async def test_request_id_unique_per_request(client):
         response = await client.get("/api/health")
         ids.add(response.headers["x-request-id"])
     assert len(ids) == 5
+
+
+@pytest.mark.anyio
+async def test_cross_origin_headers(client):
+    """Responses should include Cross-Origin security headers."""
+    response = await client.get("/api/health")
+    assert response.headers.get("cross-origin-opener-policy") == "same-origin"
+    assert response.headers.get("cross-origin-resource-policy") == "same-origin"
+
+
+@pytest.mark.anyio
+async def test_rate_limit_returns_429(client):
+    """Exceeding rate limit should return HTTP 429 with Retry-After."""
+    # Use a low-traffic endpoint; send > max_requests hits
+    # Default max is 60/min; we skip health (exempt), so hit /api/glossary
+    responses = []
+    for _ in range(65):
+        r = await client.get("/api/glossary")
+        responses.append(r)
+    # At least the last few should be 429
+    status_codes = [r.status_code for r in responses]
+    assert 429 in status_codes
+    # Verify Retry-After on a 429
+    for r in responses:
+        if r.status_code == 429:
+            assert "retry-after" in r.headers
+            break
+
+
+@pytest.mark.anyio
+async def test_hsts_includes_subdomains(client):
+    """HSTS header should include includeSubDomains directive."""
+    response = await client.get("/api/health")
+    hsts = response.headers.get("strict-transport-security", "")
+    assert "includeSubDomains" in hsts
+    assert "max-age=31536000" in hsts
+
+
+@pytest.mark.anyio
+async def test_permissions_policy_complete(client):
+    """Permissions-Policy should disable camera, microphone, geolocation, payment."""
+    response = await client.get("/api/health")
+    pp = response.headers.get("permissions-policy", "")
+    assert "camera=()" in pp
+    assert "microphone=()" in pp
+    assert "geolocation=()" in pp
+    assert "payment=()" in pp

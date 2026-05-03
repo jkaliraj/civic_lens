@@ -831,6 +831,24 @@ footer::after {
 
 /* ── Focus visible ────────────────────────────────────────── */
 :focus-visible {
-    outline: 3px solid var(--google-blue);
+    outline: 3px solid var(--g-blue);
     outline-offset: 2px;
+}
+
+/* ── High contrast ────────────────────────────────────────── */
+@media (prefers-contrast: high) {
+    :root {
+        --border-w: 4px;
+        --shadow: 6px 6px 0px #000000;
+        --text: #000000;
+        --bg: #FFFFFF;
+        --surface: #FFFFFF;
+    }
+    .nav-btn { border-width: 4px; }
+    .message, .step-card, .glossary-card, .timeline-item { border-width: 4px; }
+}
+
+@media (forced-colors: active) {
+    .nav-btn.active { border-color: Highlight; }
+    .step-icon { forced-color-adjust: none; }
 }

@@ -20,14 +20,16 @@ document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".nav-btn").forEach((b) => {
             b.classList.remove("active");
-            b.removeAttribute("aria-current");
+            b.setAttribute("aria-selected", "false");
         });
         btn.classList.add("active");
-        btn.setAttribute("aria-current", "page");
+        btn.setAttribute("aria-selected", "true");
 
         document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
         const sectionId = `section-${btn.dataset.section}`;
-        document.getElementById(sectionId).classList.add("active");
+        const section = document.getElementById(sectionId);
+        section.classList.add("active");
+        section.focus({ preventScroll: true });
 
         trackEvent("navigate_section", { section: btn.dataset.section });
     });

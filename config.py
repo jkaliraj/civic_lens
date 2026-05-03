@@ -57,17 +57,6 @@ class Settings:
     log_level: str = field(
         default_factory=lambda: os.getenv("LOG_LEVEL", "INFO").upper()
     )
-
-    def __post_init__(self) -> None:
-        """Validate configuration values after initialization."""
-        if self.log_level not in _VALID_LOG_LEVELS:
-            object.__setattr__(self, "log_level", "INFO")
-        if not 1 <= self.port <= 65535:
-            object.__setattr__(self, "port", 8080)
-        if self.cache_ttl_seconds < 0:
-            object.__setattr__(self, "cache_ttl_seconds", 3600)
-        if self.rate_limit_per_minute < 1:
-            object.__setattr__(self, "rate_limit_per_minute", 60)
     ga_measurement_id: str = field(
         default_factory=lambda: os.getenv("GA_MEASUREMENT_ID", "")
     )
@@ -82,6 +71,17 @@ class Settings:
     rate_limit_per_minute: int = field(
         default_factory=lambda: int(os.getenv("RATE_LIMIT", "60"))
     )
+
+    def __post_init__(self) -> None:
+        """Validate configuration values after initialization."""
+        if self.log_level not in _VALID_LOG_LEVELS:
+            object.__setattr__(self, "log_level", "INFO")
+        if not 1 <= self.port <= 65535:
+            object.__setattr__(self, "port", 8080)
+        if self.cache_ttl_seconds < 0:
+            object.__setattr__(self, "cache_ttl_seconds", 3600)
+        if self.rate_limit_per_minute < 1:
+            object.__setattr__(self, "rate_limit_per_minute", 60)
 
 
 @lru_cache(maxsize=1)

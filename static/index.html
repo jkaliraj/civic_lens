@@ -62,18 +62,20 @@
             <p class="tagline">Understand elections. Empower your vote.</p>
         </div>
         <nav role="navigation" aria-label="Main navigation">
-            <button class="nav-btn active" data-section="chat" aria-current="page">AI Chat</button>
-            <button class="nav-btn" data-section="process">How Voting Works</button>
-            <button class="nav-btn" data-section="timeline">Election Timeline</button>
-            <button class="nav-btn" data-section="readiness">Voter Readiness</button>
-            <button class="nav-btn" data-section="glossary">Glossary</button>
+            <div role="tablist" aria-label="Content sections">
+                <button class="nav-btn active" data-section="chat" role="tab" aria-selected="true" aria-controls="section-chat" id="tab-chat">AI Chat</button>
+                <button class="nav-btn" data-section="process" role="tab" aria-selected="false" aria-controls="section-process" id="tab-process">How Voting Works</button>
+                <button class="nav-btn" data-section="timeline" role="tab" aria-selected="false" aria-controls="section-timeline" id="tab-timeline">Election Timeline</button>
+                <button class="nav-btn" data-section="readiness" role="tab" aria-selected="false" aria-controls="section-readiness" id="tab-readiness">Voter Readiness</button>
+                <button class="nav-btn" data-section="glossary" role="tab" aria-selected="false" aria-controls="section-glossary" id="tab-glossary">Glossary</button>
+            </div>
         </nav>
     </header>
 
     <main id="main-content" role="main">
 
         <!-- AI Chat Section -->
-        <section id="section-chat" class="section active" aria-label="AI Chat">
+        <section id="section-chat" class="section active" role="tabpanel" aria-labelledby="tab-chat" aria-label="AI Chat" tabindex="-1">
             <div class="chat-container">
                 <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
                     <div class="message bot-message">
@@ -90,14 +92,16 @@
                         autocomplete="off"
                         required
                         aria-required="true"
+                        aria-describedby="chat-hint"
                     >
+                    <span id="chat-hint" class="sr-only">Type a question about elections and press Enter or click Send</span>
                     <button type="submit" id="send-btn" aria-label="Send message">Send</button>
                 </form>
             </div>
         </section>
 
         <!-- How Voting Works Section -->
-        <section id="section-process" class="section" aria-label="How Voting Works">
+        <section id="section-process" class="section" role="tabpanel" aria-labelledby="tab-process" aria-label="How Voting Works" tabindex="-1">
             <h2>How Voting Works</h2>
             <p class="section-desc">A step-by-step guide to the election process from registration to certification.</p>
             <div id="process-steps" class="steps-grid" role="list">
@@ -106,19 +110,20 @@
         </section>
 
         <!-- Election Timeline Section -->
-        <section id="section-timeline" class="section" aria-label="Election Timeline">
+        <section id="section-timeline" class="section" role="tabpanel" aria-labelledby="tab-timeline" aria-label="Election Timeline" tabindex="-1">
             <h2>Election Timeline</h2>
             <p class="section-desc">Generate an AI-powered election timeline for any country.</p>
             <form id="timeline-form" class="inline-form" aria-label="Generate election timeline">
                 <label for="timeline-country" class="sr-only">Country</label>
-                <input type="text" id="timeline-country" placeholder="Enter country (e.g., India)" value="India" maxlength="100">
+                <input type="text" id="timeline-country" placeholder="Enter country (e.g., India)" value="India" maxlength="100" aria-describedby="timeline-hint">
+                <span id="timeline-hint" class="sr-only">Enter a country name to generate its election timeline</span>
                 <button type="submit">Generate Timeline</button>
             </form>
             <div id="timeline-results" class="timeline-container" role="list" aria-label="Timeline results"></div>
         </section>
 
         <!-- Voter Readiness Section -->
-        <section id="section-readiness" class="section" aria-label="Voter Readiness Check">
+        <section id="section-readiness" class="section" role="tabpanel" aria-labelledby="tab-readiness" aria-label="Voter Readiness Check" tabindex="-1">
             <h2>Voter Readiness Check</h2>
             <p class="section-desc">Answer a few quick questions to see how prepared you are to vote.</p>
             <form id="readiness-form" class="readiness-form" aria-label="Voter readiness questionnaire">
@@ -138,7 +143,7 @@
         </section>
 
         <!-- Glossary Section -->
-        <section id="section-glossary" class="section" aria-label="Election Glossary">
+        <section id="section-glossary" class="section" role="tabpanel" aria-labelledby="tab-glossary" aria-label="Election Glossary" tabindex="-1">
             <h2>Election Glossary</h2>
             <p class="section-desc">Key terms every voter should know.</p>
             <label for="glossary-search" class="sr-only">Search glossary</label>
