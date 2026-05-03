@@ -10,6 +10,8 @@ import logging
 import traceback
 from typing import Any
 
+__all__ = ["report_error"]
+
 logger = logging.getLogger(__name__)
 
 

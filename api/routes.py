@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ai.gemini import (
     chat,
@@ -24,6 +24,8 @@ from ai.gemini import (
 )
 from services.cache import timeline_cache, topic_cache
 from services.google_cloud import get_cloud_run_metadata
+
+__all__ = ["router"]
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -42,8 +44,21 @@ class ChatRequest(BaseModel):
         country: Optional country context for localised answers.
     """
 
-    message: str = Field(..., min_length=1, max_length=2000)
-    country: Optional[str] = Field(None, max_length=100)
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {"message": "How does voter registration work in India?"},
+                {"message": "Explain the electoral college", "country": "USA"},
+            ]
+        }
+    )
+
+    message: str = Field(
+        ..., min_length=1, max_length=2000, description="User question about elections"
+    )
+    country: Optional[str] = Field(
+        None, max_length=100, description="Country context for localised answers"
+    )
 
     @field_validator("message")
     @classmethod
@@ -58,7 +73,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     """Response model for the AI chat endpoint."""
 
-    reply: str
+    reply: str = Field(..., description="AI-generated response about elections")
 
 
 class TimelineRequest(BaseModel):
@@ -68,14 +83,22 @@ class TimelineRequest(BaseModel):
         country: Target country for timeline generation.
     """
 
-    country: str = Field("India", min_length=1, max_length=100)
+    model_config = ConfigDict(
+        json_schema_extra={"examples": [{"country": "India"}, {"country": "USA"}]}
+    )
+
+    country: str = Field(
+        "India", min_length=1, max_length=100, description="Country for timeline generation"
+    )
 
 
 class TimelineResponse(BaseModel):
     """Response model for the election timeline endpoint."""
 
-    country: str
-    timeline: list[dict[str, Any]]
+    country: str = Field(..., description="Country the timeline was generated for")
+    timeline: list[dict[str, Any]] = Field(
+        ..., description="List of election phase objects"
+    )
 
 
 class ReadinessRequest(BaseModel):
@@ -90,22 +113,44 @@ class ReadinessRequest(BaseModel):
         country: Optional country context.
     """
 
-    registered: bool
-    know_polling_location: bool
-    have_id: bool
-    know_election_date: bool
-    understand_ballot: bool
-    country: Optional[str] = Field(None, max_length=100)
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "registered": True,
+                    "know_polling_location": True,
+                    "have_id": True,
+                    "know_election_date": False,
+                    "understand_ballot": False,
+                }
+            ]
+        }
+    )
+
+    registered: bool = Field(..., description="Whether the user is registered to vote")
+    know_polling_location: bool = Field(
+        ..., description="Whether they know their polling station"
+    )
+    have_id: bool = Field(..., description="Whether they have a valid voter ID")
+    know_election_date: bool = Field(
+        ..., description="Whether they know the election date"
+    )
+    understand_ballot: bool = Field(
+        ..., description="Whether they understand the ballot format"
+    )
+    country: Optional[str] = Field(
+        None, max_length=100, description="Optional country context"
+    )
 
 
 class ReadinessResponse(BaseModel):
     """Response model for the voter readiness check."""
 
-    score: int
-    status: str
-    summary: str
-    action_items: list[str] = []
-    tips: list[str] = []
+    score: int = Field(..., ge=0, le=100, description="Readiness score 0-100")
+    status: str = Field(..., description="Readiness status: ready, needs_action, not_ready")
+    summary: str = Field(..., description="Human-readable readiness summary")
+    action_items: list[str] = Field(default_factory=list, description="Steps to improve readiness")
+    tips: list[str] = Field(default_factory=list, description="Helpful voting tips")
 
 
 class TopicRequest(BaseModel):
@@ -115,7 +160,13 @@ class TopicRequest(BaseModel):
         topic: Election-related topic to explain (1-500 chars).
     """
 
-    topic: str = Field(..., min_length=1, max_length=500)
+    model_config = ConfigDict(
+        json_schema_extra={"examples": [{"topic": "Electoral College"}, {"topic": "Gerrymandering"}]}
+    )
+
+    topic: str = Field(
+        ..., min_length=1, max_length=500, description="Election topic to explain"
+    )
 
     @field_validator("topic")
     @classmethod
@@ -130,21 +181,53 @@ class TopicRequest(BaseModel):
 class TopicResponse(BaseModel):
     """Response model for the topic explainer."""
 
-    title: str
-    summary: str
-    key_points: list[str] = []
-    related_topics: list[str] = []
-    did_you_know: str = ""
+    title: str = Field(..., description="Topic title")
+    summary: str = Field(..., description="Educational summary")
+    key_points: list[str] = Field(default_factory=list, description="Key educational points")
+    related_topics: list[str] = Field(default_factory=list, description="Related election topics")
+    did_you_know: str = Field(default="", description="Fun fact about the topic")
+
+
+class GlossaryTermModel(BaseModel):
+    """A single glossary term and its definition."""
+
+    term: str = Field(..., description="Electoral term")
+    definition: str = Field(..., description="Plain-language definition")
+
+
+class GlossaryResponse(BaseModel):
+    """Response model for the glossary endpoint."""
+
+    terms: list[GlossaryTermModel] = Field(..., description="List of glossary terms")
+
+
+class ProcessStepModel(BaseModel):
+    """A single step in the election process."""
+
+    step: int = Field(..., description="Step number")
+    title: str = Field(..., description="Step title")
+    description: str = Field(..., description="Step description")
+    icon: str = Field(..., description="Step icon emoji")
+    details: list[str] = Field(default_factory=list, description="Detailed points")
+
+
+class ProcessResponse(BaseModel):
+    """Response model for the election process endpoint."""
+
+    title: str = Field(..., description="Process guide title")
+    steps: list[ProcessStepModel] = Field(..., description="Ordered list of election steps")
 
 
 class HealthResponse(BaseModel):
     """Response model for the health check endpoint."""
 
-    status: str
-    service: str
-    version: str
-    environment: str = ""
-    cache_stats: dict[str, dict[str, int]] = {}
+    status: str = Field(..., description="Service health status")
+    service: str = Field(..., description="Service name")
+    version: str = Field(..., description="Application version")
+    environment: str = Field(default="", description="Deployment environment")
+    cache_stats: dict[str, dict[str, int]] = Field(
+        default_factory=dict, description="Cache performance statistics"
+    )
 
 
 # ── Cached data loaders ──────────────────────────────────────
@@ -281,24 +364,26 @@ async def topic_endpoint(data: TopicRequest) -> TopicResponse:
 # ── Election Glossary (static data) ──────────────────────────
 
 
-@router.get("/glossary")
-async def glossary_endpoint() -> dict[str, Any]:
+@router.get("/glossary", response_model=GlossaryResponse)
+async def glossary_endpoint() -> GlossaryResponse:
     """Return the full election terminology glossary.
 
     Data is loaded from disk once and cached in memory for
     subsequent requests.
     """
-    return _load_glossary()
+    data = _load_glossary()
+    return GlossaryResponse(**data)
 
 
 # ── Election Process Steps (static data) ─────────────────────
 
 
-@router.get("/process")
-async def process_endpoint() -> dict[str, Any]:
+@router.get("/process", response_model=ProcessResponse)
+async def process_endpoint() -> ProcessResponse:
     """Return the step-by-step election process guide.
 
     Data is loaded from disk once and cached in memory for
     subsequent requests.
     """
-    return _load_process()
+    data = _load_process()
+    return ProcessResponse(**data)

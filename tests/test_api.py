@@ -336,3 +336,58 @@ async def test_api_docs_available(client):
     """Swagger docs should be accessible at /api/docs."""
     response = await client.get("/api/docs")
     assert response.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_openapi_schema_available(client):
+    """OpenAPI JSON schema should be served and contain all endpoints."""
+    response = await client.get("/api/openapi.json")
+    # FastAPI default openapi_url is /openapi.json but we mount at /api
+    # The docs are at /api/docs, try getting the openapi.json
+    if response.status_code == 404:
+        response = await client.get("/openapi.json")
+    assert response.status_code == 200
+    schema = response.json()
+    assert "paths" in schema
+    assert schema["info"]["title"] == "CivicLens AI"
+
+
+@pytest.mark.anyio
+async def test_glossary_term_structure(client):
+    """Each glossary term should have exactly term and definition fields."""
+    response = await client.get("/api/glossary")
+    data = response.json()
+    for t in data["terms"]:
+        assert set(t.keys()) == {"term", "definition"}
+
+
+@pytest.mark.anyio
+async def test_process_step_structure(client):
+    """Each process step should have all required fields."""
+    response = await client.get("/api/process")
+    data = response.json()
+    required_keys = {"step", "title", "description", "icon", "details"}
+    for step in data["steps"]:
+        assert required_keys.issubset(set(step.keys()))
+
+
+@pytest.mark.anyio
+async def test_redoc_available(client):
+    """ReDoc documentation should be accessible at /api/redoc."""
+    response = await client.get("/api/redoc")
+    assert response.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_root_contains_skip_link(client):
+    """Root HTML should include a skip-to-content link for accessibility."""
+    response = await client.get("/")
+    assert 'class="skip-link"' in response.text
+    assert 'href="#main-content"' in response.text
+
+
+@pytest.mark.anyio
+async def test_root_contains_keyboard_hints(client):
+    """Root HTML should include keyboard shortcut hints."""
+    response = await client.get("/")
+    assert "keyboard-hint" in response.text

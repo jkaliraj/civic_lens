@@ -17,6 +17,14 @@ from google.genai import types
 from config import get_settings
 from services.cache import timeline_cache, topic_cache
 
+__all__ = [
+    "chat",
+    "explain_topic",
+    "generate_timeline",
+    "voter_readiness_check",
+    "SYSTEM_INSTRUCTION",
+]
+
 logger = logging.getLogger(__name__)
 
 _client: Optional[genai.Client] = None

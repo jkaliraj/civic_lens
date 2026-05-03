@@ -4,7 +4,27 @@ version = "1.0.0"
 description = "Election Process Education Assistant powered by Google Gemini 2.5 Flash & Vertex AI"
 requires-python = ">=3.11"
 license = {text = "MIT"}
-keywords = ["elections", "civic-education", "gemini", "vertex-ai", "fastapi"]
+keywords = ["elections", "civic-education", "gemini", "vertex-ai", "fastapi", "google-cloud"]
+authors = [{name = "CivicLens Team"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Education",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "google-genai",
+    "google-cloud-logging",
+    "google-cloud-error-reporting",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "httpx", "anyio", "ruff"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -15,5 +35,8 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM"]
+select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM", "TCH", "RUF"]
 ignore = ["S101"]  # Allow assert in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["ai", "api", "config", "services"]

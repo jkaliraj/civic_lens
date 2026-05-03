@@ -374,8 +374,3 @@ loadProcess();
 loadGlossary();
 trackEvent("app_loaded");
 announce("CivicLens AI loaded. Use number keys 1 through 5 to switch tabs.");
-
-// ── Init ──────────────────────────────────────────────────
-
-loadProcess();
-loadGlossary();

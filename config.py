@@ -11,7 +11,11 @@ import logging
 from dataclasses import dataclass, field
 from functools import lru_cache
 
+__all__ = ["Settings", "get_settings"]
+
 logger = logging.getLogger(__name__)
+
+_VALID_LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
 
 
 @dataclass(frozen=True)
@@ -51,8 +55,19 @@ class Settings:
         default_factory=lambda: os.getenv("ENVIRONMENT", "production")
     )
     log_level: str = field(
-        default_factory=lambda: os.getenv("LOG_LEVEL", "INFO")
+        default_factory=lambda: os.getenv("LOG_LEVEL", "INFO").upper()
     )
+
+    def __post_init__(self) -> None:
+        """Validate configuration values after initialization."""
+        if self.log_level not in _VALID_LOG_LEVELS:
+            object.__setattr__(self, "log_level", "INFO")
+        if not 1 <= self.port <= 65535:
+            object.__setattr__(self, "port", 8080)
+        if self.cache_ttl_seconds < 0:
+            object.__setattr__(self, "cache_ttl_seconds", 3600)
+        if self.rate_limit_per_minute < 1:
+            object.__setattr__(self, "rate_limit_per_minute", 60)
     ga_measurement_id: str = field(
         default_factory=lambda: os.getenv("GA_MEASUREMENT_ID", "")
     )

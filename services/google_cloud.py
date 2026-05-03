@@ -10,6 +10,8 @@ import logging
 import os
 from typing import Any
 
+__all__ = ["setup_cloud_logging", "get_cloud_run_metadata", "log_structured"]
+
 logger = logging.getLogger(__name__)
 
 

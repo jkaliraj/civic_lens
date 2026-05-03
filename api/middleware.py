@@ -10,12 +10,20 @@ import logging
 import time
 import uuid
 from collections import defaultdict
+from typing import Callable
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from services.error_reporting import report_error
+
+__all__ = [
+    "ErrorHandlerMiddleware",
+    "RateLimitMiddleware",
+    "RequestIdMiddleware",
+    "SecurityHeadersMiddleware",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +36,9 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
     response headers and available in the request state for logging.
     """
 
-    async def dispatch(self, request: Request, call_next) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Inject request ID into request state and response headers."""
         request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
         request.state.request_id = request_id
@@ -45,7 +55,9 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     to Google Cloud Error Reporting for production monitoring.
     """
 
-    async def dispatch(self, request: Request, call_next) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Catch unhandled exceptions and return a safe JSON response."""
         try:
             return await call_next(request)
@@ -85,7 +97,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         - Cache-Control: Prevent sensitive data caching.
     """
 
-    async def dispatch(self, request: Request, call_next) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Process request and attach security headers to response."""
         response = await call_next(request)
 
@@ -101,7 +115,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "script-src 'self' https://www.googletagmanager.com "
             "https://www.google-analytics.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
             "img-src 'self' data:; "
             "connect-src 'self' https://www.google-analytics.com "
             "https://analytics.google.com"
@@ -135,7 +149,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.window_seconds = window_seconds
         self._requests: dict[str, list[float]] = defaultdict(list)
 
-    async def dispatch(self, request: Request, call_next) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Check rate limit, then forward or reject the request."""
         # Skip rate limiting for health checks and static files
         if request.url.path in ("/api/health", "/") or request.url.path.startswith(

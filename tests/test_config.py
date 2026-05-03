@@ -79,3 +79,37 @@ class TestGetSettings:
         s1 = get_settings()
         s2 = get_settings()
         assert s1 is s2
+
+
+class TestSettingsValidation:
+    """Test suite for configuration value validation."""
+
+    def test_invalid_log_level_defaults_to_info(self):
+        """Invalid log level should fall back to INFO."""
+        with patch.dict(os.environ, {"LOG_LEVEL": "INVALID"}, clear=True):
+            s = Settings()
+            assert s.log_level == "INFO"
+
+    def test_invalid_port_defaults_to_8080(self):
+        """Out-of-range port should fall back to 8080."""
+        with patch.dict(os.environ, {"PORT": "0"}, clear=True):
+            s = Settings()
+            assert s.port == 8080
+
+    def test_negative_cache_ttl_defaults(self):
+        """Negative cache TTL should fall back to default."""
+        with patch.dict(os.environ, {"CACHE_TTL": "-1"}, clear=True):
+            s = Settings()
+            assert s.cache_ttl_seconds == 3600
+
+    def test_zero_rate_limit_defaults(self):
+        """Zero rate limit should fall back to default."""
+        with patch.dict(os.environ, {"RATE_LIMIT": "0"}, clear=True):
+            s = Settings()
+            assert s.rate_limit_per_minute == 60
+
+    def test_log_level_case_insensitive(self):
+        """Log level should be normalised to uppercase."""
+        with patch.dict(os.environ, {"LOG_LEVEL": "debug"}, clear=True):
+            s = Settings()
+            assert s.log_level == "DEBUG"
