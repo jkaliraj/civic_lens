@@ -82,14 +82,7 @@ function formatText(text) {
 function showThinking() {
     const div = document.createElement("div");
     div.className = "message bot-message thinking-message";
-    div.innerHTML = `
-        <div class="message-content">
-            <strong>CivicLens AI</strong><br>
-            <span class="thinking-indicator">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="thinking-text">Thinking...</span>
-            </span>
-        </div>`;
+    div.innerHTML = `<div class="message-content"><span class="thinking-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>`;
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return div;

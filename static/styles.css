@@ -33,7 +33,7 @@ body {
     font-family: var(--font);
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     line-height: 1.6;
@@ -181,11 +181,21 @@ main {
     width: 100%;
     margin: 0 auto;
     padding: 28px 16px;
-    overflow-y: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .section { display: none; }
-.section.active { display: block; animation: slideUp 0.3s ease; }
+.section.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
 
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(12px); }
@@ -211,21 +221,24 @@ h2 {
     font-size: 1rem;
 }
 
-/* Chat */
+/* Chat — special: no overflow on section, chat fills it */
+#section-chat.section.active { overflow: hidden; }
+
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 260px);
-    min-height: 400px;
+    flex: 1;
+    min-height: 0;
 }
 
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 0;
+    padding: 16px 20px 16px 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-height: 0;
 }
 
 .message {
@@ -595,65 +608,64 @@ h3 {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border: 2px solid var(--border);
+    background: #ccc;
+    border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: #999; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }
 
-/* Thinking indicator */
-.thinking-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-.thinking-indicator .dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: var(--g-blue);
+/* Thinking indicator — compact wavy dots */
+.thinking-message {
+    padding: 10px 16px;
+    max-width: 80px;
     border: 2px solid var(--border);
-    animation: bounce 1.4s infinite ease-in-out both;
+    box-shadow: 2px 2px 0px var(--border);
 }
-.thinking-indicator .dot:nth-child(1) { animation-delay: -0.32s; }
-.thinking-indicator .dot:nth-child(2) { animation-delay: -0.16s; }
-.thinking-indicator .dot:nth-child(3) { animation-delay: 0s; }
-.thinking-text {
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-left: 8px;
-    font-size: 0.88rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.thinking-message .message-content { display: flex; align-items: center; }
+.thinking-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 20px;
 }
-@keyframes bounce {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
+.thinking-dots .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--g-blue);
+    animation: wave 1.3s ease-in-out infinite;
+}
+.thinking-dots .dot:nth-child(2) { animation-delay: 0.15s; background: var(--g-red); }
+.thinking-dots .dot:nth-child(3) { animation-delay: 0.3s; background: var(--g-green); }
+@keyframes wave {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-8px); }
 }
 
 /* Footer */
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 10px 20px;
     border-top: var(--border-w) solid var(--border);
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     background: var(--surface);
     font-weight: 600;
+    flex-shrink: 0;
 }
 footer::after {
     content: "";
     display: block;
-    height: 6px;
+    height: 4px;
     background: linear-gradient(90deg, var(--saffron) 33%, #fff 33% 66%, var(--india-green) 66%);
-    margin: 16px -20px -20px;
+    margin: 8px -20px -10px;
     border-top: 2px solid var(--border);
 }
 .disclaimer {
-    font-size: 0.8rem;
-    margin-top: 6px;
+    font-size: 0.72rem;
+    margin-top: 4px;
     font-weight: 500;
     opacity: 0.8;
 }
@@ -663,7 +675,7 @@ footer::after {
     .logo { font-size: 1.5rem; }
     nav { justify-content: flex-start; }
     .nav-btn { padding: 6px 12px; font-size: 0.78rem; }
-    .chat-container { height: calc(100vh - 280px); }
+    .chat-container { min-height: 300px; }
     .glossary-grid { grid-template-columns: 1fr; }
     .inline-form { flex-direction: column; }
     .message { max-width: 92%; }
