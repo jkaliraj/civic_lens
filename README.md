@@ -6,30 +6,32 @@ conversational AI — powered by Gemini 2.5 Flash and Vertex AI.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CivicLens AI                              │
-├─────────────────────────────────────────────────────────────┤
-│  Frontend (SPA)        │  REST API (FastAPI)                 │
-│  ─────────────────     │  ─────────────────────             │
-│  • AI Chat             │  POST /api/chat                    │
-│  • Election Steps      │  POST /api/timeline                │
-│  • Timeline Generator  │  POST /api/readiness               │
-│  • Readiness Check     │  POST /api/topic                   │
-│  • Glossary Search     │  GET  /api/glossary                │
-│                        │  GET  /api/process                  │
-│                        │  GET  /api/health                   │
-├─────────────────────────────────────────────────────────────┤
-│  AI Layer (Gemini 2.5 Flash via Vertex AI)                  │
-│  ─────────────────────────────────────────                  │
-│  • Non-partisan election education                          │
-│  • Structured timeline generation                           │
-│  • Voter readiness evaluation                               │
-│  • Topic explanation with related concepts                  │
-├─────────────────────────────────────────────────────────────┤
-│  Deployment: Google Cloud Run (Serverless)                  │
-│  Auth: Vertex AI Application Default Credentials            │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Client
+        UI[Web UI - SPA]
+    end
+
+    subgraph CloudRun[Google Cloud Run]
+        FE[FastAPI Server]
+        AI[Gemini 2.5 Flash]
+        DATA[Election Data]
+    end
+
+    subgraph VertexAI[Vertex AI]
+        GEMINI[Gemini 2.5 Flash Model]
+        ADC[Application Default Credentials]
+    end
+
+    UI -->|REST API| FE
+    FE -->|Chat / Timeline / Readiness / Topics| AI
+    FE -->|Glossary / Process Steps| DATA
+    AI -->|Vertex AI ADC| GEMINI
+    ADC -.->|Auth| GEMINI
+
+    style Client fill:#4285F4,stroke:#222,stroke-width:2px,color:#fff
+    style CloudRun fill:#34A853,stroke:#222,stroke-width:2px,color:#fff
+    style VertexAI fill:#FF9933,stroke:#222,stroke-width:2px,color:#fff
 ```
 
 ## Tech Stack
@@ -37,50 +39,21 @@ conversational AI — powered by Gemini 2.5 Flash and Vertex AI.
 | Component  | Technology                   | Purpose                              |
 | ---------- | ---------------------------- | ------------------------------------ |
 | AI Model   | Gemini 2.5 Flash (Vertex AI) | Reasoning, generation, education     |
-| Backend    | FastAPI (Python)             | REST API with request validation     |
-| Frontend   | Vanilla HTML/CSS/JS          | Accessible SPA, dark theme           |
+| Backend    | FastAPI (Python 3.11)        | REST API with Pydantic validation    |
+| Frontend   | Vanilla HTML/CSS/JS          | Neo-Brutalist accessible SPA         |
 | Auth       | Vertex AI ADC                | Application Default Credentials      |
 | Deployment | Google Cloud Run             | Serverless container hosting         |
 | Testing    | pytest + httpx               | Async API and unit tests             |
 
 ## Features
 
-- **AI Chat**: Conversational assistant answering election process questions
+- **AI Chat**: Conversational assistant for election process questions
 - **Election Process Guide**: Step-by-step visual walkthrough of how voting works
 - **Timeline Generator**: AI-generated election timelines for any country
 - **Voter Readiness Check**: Self-assessment quiz with AI-powered feedback
 - **Election Glossary**: Searchable database of 25+ electoral terms
 - **Non-Partisan**: Factual, neutral education without political bias
 - **Accessible**: WCAG-compliant with keyboard navigation, ARIA labels, skip links
-
-## Project Structure
-
-```
-civic_lens/
-├── main.py                    # FastAPI entry + static serving
-├── ai/
-│   ├── __init__.py
-│   └── gemini.py              # Gemini 2.5 Flash integration
-├── api/
-│   ├── __init__.py
-│   └── routes.py              # REST API endpoints (7 routes)
-├── data/
-│   ├── election_process.json  # Step-by-step voting guide
-│   └── glossary.json          # 25 electoral terms
-├── static/
-│   ├── index.html             # Accessible SPA
-│   ├── styles.css             # Dark theme UI
-│   └── app.js                 # Frontend logic
-├── tests/
-│   ├── __init__.py
-│   ├── test_api.py            # API integration tests
-│   └── test_ai.py             # AI module unit tests
-├── Dockerfile                 # Cloud Run container (python:3.11-slim)
-├── .dockerignore
-├── .gitignore
-├── pytest.ini                 # Test configuration
-└── requirements.txt           # Python dependencies
-```
 
 ## Prerequisites
 
@@ -101,12 +74,9 @@ export GOOGLE_CLOUD_LOCATION=us-central1
 uvicorn main:app --reload --port 8080
 ```
 
-Open http://localhost:8080
-
 ## Run Tests
 
 ```bash
-pip install pytest httpx anyio pytest-anyio
 pytest -v
 ```
 
@@ -140,7 +110,6 @@ gcloud run deploy civic-lens-ai \
 - CORS middleware with configurable allowed origins
 - No hardcoded credentials — uses Application Default Credentials
 - Request size limits on all user inputs
-- Content Security Policy via secure response headers
 
 ## License
 
