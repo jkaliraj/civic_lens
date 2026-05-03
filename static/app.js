@@ -36,6 +36,8 @@ chatForm.addEventListener("submit", async (e) => {
     chatInput.disabled = true;
     document.getElementById("send-btn").disabled = true;
 
+    const thinkingEl = showThinking();
+
     try {
         const res = await fetch(`${API}/chat`, {
             method: "POST",
@@ -44,8 +46,10 @@ chatForm.addEventListener("submit", async (e) => {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        removeThinking(thinkingEl);
         appendMessage(data.reply, "bot");
     } catch (err) {
+        removeThinking(thinkingEl);
         appendMessage("Sorry, something went wrong. Please try again.", "bot");
     } finally {
         chatInput.disabled = false;
@@ -73,6 +77,26 @@ function formatText(text) {
     return text
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\n/g, "<br>");
+}
+
+function showThinking() {
+    const div = document.createElement("div");
+    div.className = "message bot-message thinking-message";
+    div.innerHTML = `
+        <div class="message-content">
+            <strong>CivicLens AI</strong><br>
+            <span class="thinking-indicator">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="thinking-text">Thinking...</span>
+            </span>
+        </div>`;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+}
+
+function removeThinking(el) {
+    if (el && el.parentNode) el.parentNode.removeChild(el);
 }
 
 // ── Election Process ──────────────────────────────────────

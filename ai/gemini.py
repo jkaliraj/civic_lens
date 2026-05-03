@@ -79,7 +79,7 @@ async def chat(message: str, context: Optional[str] = None) -> str:
         return f"I'm having trouble processing your request. Please try again. ({e})"
 
 
-async def generate_timeline(country: str = "United States") -> list:
+async def generate_timeline(country: str = "India") -> list:
     """Generate an election timeline for the specified country."""
     prompt = (
         f"{SYSTEM_INSTRUCTION}\n"

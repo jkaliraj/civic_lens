@@ -32,7 +32,7 @@ class ChatRequest(BaseModel):
 
 
 class TimelineRequest(BaseModel):
-    country: str = Field("United States", min_length=1, max_length=100)
+    country: str = Field("India", min_length=1, max_length=100)
 
 
 class ReadinessRequest(BaseModel):
