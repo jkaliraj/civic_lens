@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CivicLens AI — Interactive election process education assistant powered by Gemini AI">
+    <title>CivicLens AI — Election Process Education</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header role="banner">
+        <div class="header-inner">
+            <h1 class="logo">🏛️ CivicLens <span class="logo-ai">AI</span></h1>
+            <p class="tagline">Understand elections. Empower your vote.</p>
+        </div>
+        <nav role="navigation" aria-label="Main navigation">
+            <button class="nav-btn active" data-section="chat" aria-current="page">AI Chat</button>
+            <button class="nav-btn" data-section="process">How Voting Works</button>
+            <button class="nav-btn" data-section="timeline">Election Timeline</button>
+            <button class="nav-btn" data-section="readiness">Voter Readiness</button>
+            <button class="nav-btn" data-section="glossary">Glossary</button>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+
+        <!-- AI Chat Section -->
+        <section id="section-chat" class="section active" aria-label="AI Chat">
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <strong>CivicLens AI</strong><br>
+                            Welcome! I'm here to help you understand election processes, voting procedures, and civic participation.
+                            Ask me anything about elections — from voter registration to how votes are counted.
+                        </div>
+                    </div>
+                </div>
+                <form id="chat-form" class="chat-input-area" aria-label="Send a message">
+                    <label for="chat-input" class="sr-only">Type your question about elections</label>
+                    <input
+                        type="text"
+                        id="chat-input"
+                        placeholder="Ask about elections, voting, or civic processes..."
+                        maxlength="2000"
+                        autocomplete="off"
+                        required
+                        aria-required="true"
+                    >
+                    <button type="submit" id="send-btn" aria-label="Send message">Send</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- How Voting Works Section -->
+        <section id="section-process" class="section" aria-label="How Voting Works">
+            <h2>How Voting Works</h2>
+            <p class="section-desc">A step-by-step guide to the election process from registration to certification.</p>
+            <div id="process-steps" class="steps-grid" role="list">
+                <div class="loading" role="status" aria-label="Loading">Loading election process...</div>
+            </div>
+        </section>
+
+        <!-- Election Timeline Section -->
+        <section id="section-timeline" class="section" aria-label="Election Timeline">
+            <h2>Election Timeline</h2>
+            <p class="section-desc">Generate an AI-powered election timeline for any country.</p>
+            <form id="timeline-form" class="inline-form" aria-label="Generate election timeline">
+                <label for="timeline-country" class="sr-only">Country</label>
+                <input type="text" id="timeline-country" placeholder="Enter country (e.g., United States)" value="United States" maxlength="100">
+                <button type="submit">Generate Timeline</button>
+            </form>
+            <div id="timeline-results" class="timeline-container" role="list" aria-label="Timeline results"></div>
+        </section>
+
+        <!-- Voter Readiness Section -->
+        <section id="section-readiness" class="section" aria-label="Voter Readiness Check">
+            <h2>Voter Readiness Check</h2>
+            <p class="section-desc">Answer a few quick questions to see how prepared you are to vote.</p>
+            <form id="readiness-form" class="readiness-form" aria-label="Voter readiness questionnaire">
+                <fieldset>
+                    <legend class="sr-only">Readiness Questions</legend>
+                    <div class="question-group">
+                        <label><input type="checkbox" id="q-registered"> I am registered to vote</label>
+                        <label><input type="checkbox" id="q-polling"> I know my polling station location</label>
+                        <label><input type="checkbox" id="q-id"> I have a valid voter ID</label>
+                        <label><input type="checkbox" id="q-date"> I know the upcoming election date</label>
+                        <label><input type="checkbox" id="q-ballot"> I understand how to fill out my ballot</label>
+                    </div>
+                </fieldset>
+                <button type="submit">Check Readiness</button>
+            </form>
+            <div id="readiness-results" class="readiness-results" aria-live="polite"></div>
+        </section>
+
+        <!-- Glossary Section -->
+        <section id="section-glossary" class="section" aria-label="Election Glossary">
+            <h2>Election Glossary</h2>
+            <p class="section-desc">Key terms every voter should know.</p>
+            <label for="glossary-search" class="sr-only">Search glossary</label>
+            <input type="text" id="glossary-search" class="glossary-search" placeholder="Search terms..." maxlength="100" aria-label="Filter glossary terms">
+            <div id="glossary-list" class="glossary-grid" role="list">
+                <div class="loading" role="status" aria-label="Loading">Loading glossary...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer role="contentinfo">
+        <p>CivicLens AI &mdash; Powered by Google Gemini 2.5 Flash &amp; Vertex AI</p>
+        <p class="disclaimer">This tool provides educational information only. Always verify election details with your local election authority.</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

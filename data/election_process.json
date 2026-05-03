@@ -1,0 +1,89 @@
+{
+  "title": "How Elections Work — A Step-by-Step Guide",
+  "steps": [
+    {
+      "step": 1,
+      "title": "Voter Registration",
+      "icon": "📋",
+      "description": "Before you can vote, you must register with your local election authority. This confirms your identity, age, citizenship, and residency.",
+      "details": [
+        "Check if your state or country has automatic voter registration",
+        "Register online, by mail, or in person at designated offices",
+        "Note the registration deadline — some regions require registration weeks before election day",
+        "Keep your registration updated if you move or change your name"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Candidate Nominations",
+      "icon": "🎤",
+      "description": "Candidates declare their intent to run and go through a nomination process within their party or as independents.",
+      "details": [
+        "Parties hold primaries or caucuses to select their nominees",
+        "Independent candidates may need to collect petition signatures",
+        "Candidates file official paperwork and financial disclosures",
+        "Nomination deadlines vary by jurisdiction and office"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Campaign Period",
+      "icon": "📢",
+      "description": "Candidates engage with voters through rallies, debates, advertising, and door-to-door canvassing to share their platforms.",
+      "details": [
+        "Campaign finance laws regulate fundraising and spending",
+        "Debates give voters a chance to compare candidates directly",
+        "Media coverage and fact-checking help inform the electorate",
+        "Campaigns must follow advertising disclosure rules"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Early & Absentee Voting",
+      "icon": "📬",
+      "description": "Many jurisdictions offer early voting or absentee/mail-in ballots for voters who cannot attend on election day.",
+      "details": [
+        "Check if your jurisdiction offers early in-person voting",
+        "Request an absentee ballot well before the deadline",
+        "Follow all instructions carefully when completing a mail-in ballot",
+        "Track your ballot status online if available"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Election Day",
+      "icon": "🗳️",
+      "description": "Registered voters cast their ballots at designated polling stations or through other approved methods.",
+      "details": [
+        "Locate your assigned polling station in advance",
+        "Bring required identification documents",
+        "Polls are open during set hours — plan to arrive with time to spare",
+        "Poll workers are available to assist with any questions"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Vote Counting & Results",
+      "icon": "📊",
+      "description": "After polls close, election officials count ballots using secure, auditable processes to determine the winners.",
+      "details": [
+        "Counting methods vary: hand-counted paper ballots, optical scanners, or electronic systems",
+        "Observers from parties and independent groups monitor the count",
+        "Preliminary results may be available on election night",
+        "Official certification takes days or weeks depending on the jurisdiction"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Certification & Transition",
+      "icon": "✅",
+      "description": "Election results are officially certified and the winning candidates prepare to take office.",
+      "details": [
+        "Canvassing boards verify and certify the final vote totals",
+        "Candidates may challenge results through legal processes if warranted",
+        "A peaceful transition of power follows certification",
+        "Newly elected officials are inaugurated on the designated date"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+/* CivicLens AI — Frontend Logic */
+"use strict";
+
+const API = "/api";
+
+// ── Navigation ─────────────────────────────────────────────
+
+document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav-btn").forEach((b) => {
+            b.classList.remove("active");
+            b.removeAttribute("aria-current");
+        });
+        btn.classList.add("active");
+        btn.setAttribute("aria-current", "page");
+
+        document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+        const sectionId = `section-${btn.dataset.section}`;
+        document.getElementById(sectionId).classList.add("active");
+    });
+});
+
+// ── Chat ───────────────────────────────────────────────────
+
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatMessages = document.getElementById("chat-messages");
+
+chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    appendMessage(message, "user");
+    chatInput.value = "";
+    chatInput.disabled = true;
+    document.getElementById("send-btn").disabled = true;
+
+    try {
+        const res = await fetch(`${API}/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        appendMessage(data.reply, "bot");
+    } catch (err) {
+        appendMessage("Sorry, something went wrong. Please try again.", "bot");
+    } finally {
+        chatInput.disabled = false;
+        document.getElementById("send-btn").disabled = false;
+        chatInput.focus();
+    }
+});
+
+function appendMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = `message ${sender === "user" ? "user-message" : "bot-message"}`;
+    const content = document.createElement("div");
+    content.className = "message-content";
+    if (sender === "bot") {
+        content.innerHTML = `<strong>CivicLens AI</strong><br>${formatText(text)}`;
+    } else {
+        content.textContent = text;
+    }
+    div.appendChild(content);
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function formatText(text) {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>");
+}
+
+// ── Election Process ──────────────────────────────────────
+
+async function loadProcess() {
+    try {
+        const res = await fetch(`${API}/process`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const container = document.getElementById("process-steps");
+        container.innerHTML = data.steps
+            .map(
+                (s) => `
+            <article class="step-card" role="listitem">
+                <div class="step-header">
+                    <span class="step-icon" aria-hidden="true">${s.icon}</span>
+                    <span class="step-number" aria-label="Step ${s.step}">${s.step}</span>
+                    <span class="step-title">${s.title}</span>
+                </div>
+                <p class="step-desc">${s.description}</p>
+                <ul class="step-details">
+                    ${s.details.map((d) => `<li>${d}</li>`).join("")}
+                </ul>
+            </article>
+        `
+            )
+            .join("");
+    } catch {
+        document.getElementById("process-steps").innerHTML =
+            '<p class="loading">Failed to load election process data.</p>';
+    }
+}
+
+// ── Timeline ──────────────────────────────────────────────
+
+const timelineForm = document.getElementById("timeline-form");
+timelineForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const country = document.getElementById("timeline-country").value.trim();
+    if (!country) return;
+
+    const container = document.getElementById("timeline-results");
+    container.innerHTML = '<div class="loading" role="status">Generating timeline...</div>';
+
+    try {
+        const res = await fetch(`${API}/timeline`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ country }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        container.innerHTML = data.timeline
+            .map(
+                (item) => `
+            <div class="timeline-item" role="listitem">
+                <div class="timeline-phase">${item.phase}</div>
+                <div class="timeline-time">${item.timeframe}</div>
+                <p class="timeline-desc">${item.description}</p>
+            </div>
+        `
+            )
+            .join("");
+    } catch {
+        container.innerHTML = '<p class="loading">Failed to generate timeline. Please try again.</p>';
+    }
+});
+
+// ── Voter Readiness ───────────────────────────────────────
+
+const readinessForm = document.getElementById("readiness-form");
+readinessForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const results = document.getElementById("readiness-results");
+    results.innerHTML = '<div class="loading" role="status">Evaluating readiness...</div>';
+
+    const payload = {
+        registered: document.getElementById("q-registered").checked,
+        know_polling_location: document.getElementById("q-polling").checked,
+        have_id: document.getElementById("q-id").checked,
+        know_election_date: document.getElementById("q-date").checked,
+        understand_ballot: document.getElementById("q-ballot").checked,
+    };
+
+    try {
+        const res = await fetch(`${API}/readiness`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderReadiness(data);
+    } catch {
+        results.innerHTML = '<p class="loading">Failed to check readiness. Please try again.</p>';
+    }
+});
+
+function renderReadiness(data) {
+    const scoreClass =
+        data.status === "ready" ? "score-ready" : data.status === "needs_action" ? "score-action" : "score-not-ready";
+
+    let html = `
+        <div class="readiness-card">
+            <div class="score-display">
+                <div class="score-number ${scoreClass}">${data.score}%</div>
+                <div class="score-label">${data.summary}</div>
+            </div>
+    `;
+
+    if (data.action_items && data.action_items.length > 0) {
+        html += `<h3>Action Items</h3><ul class="action-list">${data.action_items.map((a) => `<li>${a}</li>`).join("")}</ul>`;
+    }
+    if (data.tips && data.tips.length > 0) {
+        html += `<h3>Tips</h3><ul class="tips-list">${data.tips.map((t) => `<li>${t}</li>`).join("")}</ul>`;
+    }
+
+    html += "</div>";
+    document.getElementById("readiness-results").innerHTML = html;
+}
+
+// ── Glossary ──────────────────────────────────────────────
+
+let glossaryData = [];
+
+async function loadGlossary() {
+    try {
+        const res = await fetch(`${API}/glossary`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        glossaryData = data.terms || [];
+        renderGlossary(glossaryData);
+    } catch {
+        document.getElementById("glossary-list").innerHTML =
+            '<p class="loading">Failed to load glossary.</p>';
+    }
+}
+
+function renderGlossary(terms) {
+    document.getElementById("glossary-list").innerHTML = terms
+        .map(
+            (t) => `
+        <div class="glossary-card" role="listitem">
+            <div class="glossary-term">${t.term}</div>
+            <div class="glossary-def">${t.definition}</div>
+        </div>
+    `
+        )
+        .join("");
+}
+
+document.getElementById("glossary-search").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    const filtered = glossaryData.filter(
+        (t) => t.term.toLowerCase().includes(q) || t.definition.toLowerCase().includes(q)
+    );
+    renderGlossary(filtered);
+});
+
+// ── Init ──────────────────────────────────────────────────
+
+loadProcess();
+loadGlossary();

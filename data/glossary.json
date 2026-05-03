@@ -1,0 +1,29 @@
+{
+  "terms": [
+    {"term": "Ballot", "definition": "The official document or device used to cast a vote in an election."},
+    {"term": "Caucus", "definition": "A meeting of party members to select candidates or decide policy, used in some states as an alternative to primaries."},
+    {"term": "Constituency", "definition": "A geographic area whose residents are represented by an elected official."},
+    {"term": "Delegate", "definition": "A person authorized to represent others at a political convention or assembly."},
+    {"term": "Electoral College", "definition": "A body of electors established by the U.S. Constitution to elect the president and vice president."},
+    {"term": "Franchise", "definition": "The right to vote in public elections, also known as suffrage."},
+    {"term": "Gerrymandering", "definition": "The practice of drawing electoral district boundaries to favor a particular party or group."},
+    {"term": "Incumbent", "definition": "The current holder of a political office who is running for re-election."},
+    {"term": "Mail-in Ballot", "definition": "A ballot that is mailed to voters and returned by mail, allowing voting without visiting a polling station."},
+    {"term": "Midterm Election", "definition": "An election held in the middle of a president's four-year term, for congressional and state offices."},
+    {"term": "Polling Station", "definition": "A designated location where voters go to cast their ballots on election day."},
+    {"term": "Primary Election", "definition": "An election in which party members vote to select their party's candidate for the general election."},
+    {"term": "Proportional Representation", "definition": "An electoral system where seats are allocated based on the proportion of votes each party receives."},
+    {"term": "Ranked-Choice Voting", "definition": "A voting method where voters rank candidates in order of preference; if no candidate wins a majority, the lowest-ranked candidate is eliminated and votes redistributed."},
+    {"term": "Redistricting", "definition": "The process of redrawing electoral district boundaries, typically after a census."},
+    {"term": "Referendum", "definition": "A direct vote by the electorate on a specific proposal or issue, rather than on a candidate."},
+    {"term": "Runoff Election", "definition": "A second election held when no candidate achieves the required majority in the first round."},
+    {"term": "Suffrage", "definition": "The right to vote in political elections."},
+    {"term": "Swing State", "definition": "A state where both major political parties have similar levels of support and the outcome is uncertain."},
+    {"term": "Voter Registration", "definition": "The process by which eligible citizens sign up to be added to the official list of voters."},
+    {"term": "Voter Turnout", "definition": "The percentage of eligible voters who actually cast a ballot in an election."},
+    {"term": "Absentee Voting", "definition": "A method that allows voters to cast their ballot before election day, typically by mail, when they cannot visit the polling station."},
+    {"term": "Bipartisan", "definition": "Involving cooperation or agreement between two major political parties."},
+    {"term": "Canvassing", "definition": "The systematic process of directly contacting voters to gather support or information, or the official tabulation of votes after an election."},
+    {"term": "Disenfranchisement", "definition": "The revocation or denial of the right to vote for an individual or group."}
+  ]
+}
