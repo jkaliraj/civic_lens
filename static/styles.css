@@ -59,22 +59,22 @@ body {
 header {
     background: var(--surface);
     border-bottom: var(--border-w) solid var(--border);
-    padding: 20px 24px 0;
+    padding: 12px 24px 0;
     position: sticky; top: 0; z-index: 100;
 }
 header::before {
     content: "";
     display: block;
-    height: 6px;
+    height: 4px;
     background: linear-gradient(90deg, var(--saffron) 33%, #fff 33% 66%, var(--india-green) 66%);
-    margin: -20px -24px 16px;
+    margin: -12px -24px 10px;
     border-bottom: 2px solid var(--border);
 }
 
-.header-inner { text-align: center; margin-bottom: 16px; }
+.header-inner { text-align: center; margin-bottom: 8px; }
 
 .logo {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: var(--text);
     letter-spacing: -1px;
@@ -92,8 +92,8 @@ header::before {
 
 .tagline {
     color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-top: 6px;
+    font-size: 0.82rem;
+    margin-top: 2px;
     font-weight: 500;
 }
 
@@ -110,8 +110,8 @@ nav {
     background: var(--surface);
     border: var(--border-w) solid var(--border);
     color: var(--text);
-    padding: 8px 18px;
-    font-size: 0.88rem;
+    padding: 6px 14px;
+    font-size: 0.82rem;
     font-weight: 700;
     font-family: var(--font);
     cursor: pointer;
@@ -120,7 +120,7 @@ nav {
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 .nav-btn:hover {
     transform: translate(1px, 1px);
@@ -653,10 +653,10 @@ h3 {
 /* Footer */
 footer {
     text-align: center;
-    padding: 10px 20px;
+    padding: 6px 20px;
     border-top: var(--border-w) solid var(--border);
     color: var(--text-muted);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     background: var(--surface);
     font-weight: 600;
     flex-shrink: 0;
@@ -664,14 +664,14 @@ footer {
 footer::after {
     content: "";
     display: block;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--saffron) 33%, #fff 33% 66%, var(--india-green) 66%);
-    margin: 8px -20px -10px;
+    margin: 5px -20px -6px;
     border-top: 2px solid var(--border);
 }
 .disclaimer {
-    font-size: 0.72rem;
-    margin-top: 4px;
+    font-size: 0.65rem;
+    margin-top: 2px;
     font-weight: 500;
     opacity: 0.8;
 }
